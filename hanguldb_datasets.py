@@ -18,9 +18,9 @@ class HguImage:
         self.code = code
         self.ch = code.decode('cp949')
         hangul_ord = ord(self.ch) - ord('가')
-        self.labels = (hangul_ord//(N_JUNGSEONG*N_JONGSEONG), 
+        self.labels = np.array((hangul_ord//(N_JUNGSEONG*N_JONGSEONG), 
                     (hangul_ord%(N_JUNGSEONG*N_JONGSEONG))//N_JONGSEONG, 
-                    hangul_ord%N_JONGSEONG)
+                    hangul_ord%N_JONGSEONG))
         self.label = self.labels[0]
         self.width = w
         self.height = h
@@ -150,7 +150,6 @@ def read_hgu1_folder(foldername):
     xs = []
     ys = []
     folderpath = get_datafolder_path(foldername)
-    hgufile_count = 0
     for r, _dirnames, filenames in os.walk(folderpath):
         for i, filename in enumerate(filenames):
             #if i == 201:
@@ -158,14 +157,13 @@ def read_hgu1_folder(foldername):
             if i % 100 == 0:
                 print(i)
             if not filename.endswith('.hgu1'):
-                hgufile_count += 1
                 continue
             filepath = os.path.join(r, filename)
             for x, y in read_imgs(filepath):
                 xs.append(x)
                 ys.append(y)
         break          
-    assert hgufile_count > 100, 'no .hgu file is found in `%s`'%(foldername,)
+    assert len(xs) > 100, 'no .hgu file is found in `%s`'%(foldername,)
     return np.array(xs), np.array(ys)  
 
 
@@ -175,7 +173,6 @@ def convert_file(filepath, dirpath):
         file_header = f.read(8)
         assert file_header[:4] == b'HGU1', 'fileheader incorrect!'
         #print("file_header = %s"%(str(file_header)))
-
 
         for n, image in enumerate(read_hgu1(f)):
             #if n == 10:
